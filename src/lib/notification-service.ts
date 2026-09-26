@@ -65,7 +65,8 @@ export function generateSimulatedNotifications(
         ? `Chef ${backupCookNames[0]}` 
         : `Chefs ${backupCookNames.join(' & ')}`;
 
-      message = `🔔 TiffinLoop Update for ${subName}:\nDue to an unexpected situation, your assigned cook ${alert.cookName} is unavailable today.\n\n✅ To ensure you receive your ${mealType.toLowerCase()} on time, your ${boxCount} (${orderIdStr}) has been reassigned to our top-rated ${chefStr}.\n🕒 Delivery Window: ${deliveryWindow}\n🥗 Dietary Assurance: 100% ${diet} verified.\n\nThank you for choosing TiffinLoop!`;
+      const verb = group.length > 1 ? 'have been' : 'has been';
+      message = `🔔 TiffinLoop Update for ${subName}:\nDue to an unexpected situation, your assigned cook ${alert.cookName} is unavailable today.\n\n✅ To ensure you receive your ${mealType.toLowerCase()} on time, your ${boxCount} (${orderIdStr}) ${verb} reassigned to our top-rated ${chefStr}.\n🕒 Delivery Window: ${deliveryWindow}\n🥗 Dietary Assurance: 100% ${diet} verified.\n\nThank you for choosing TiffinLoop!`;
     }
 
     notifications.push({

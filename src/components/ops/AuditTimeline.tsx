@@ -10,6 +10,30 @@ interface AuditTimelineProps {
 }
 
 export function AuditTimeline({ events, onClearHistory }: AuditTimelineProps) {
+  function downloadCsv() {
+    if (events.length === 0) return;
+    const headers = ['Timestamp', 'CookID', 'CookName', 'AffectedOrders', 'ResolutionType', 'AssignedBackups', 'NotificationsSent', 'Details'];
+    const rows = events.map(e => [
+      `"${e.timestamp}"`,
+      `"${e.cookId}"`,
+      `"${e.cookName}"`,
+      e.affectedOrdersCount,
+      `"${e.resolutionType}"`,
+      `"${e.assignedBackups.join(';')}"`,
+      e.notificationsSentCount,
+      `"${e.details.replace(/"/g, '""')}"`
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `tiffinloop_audit_log_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
@@ -27,13 +51,22 @@ export function AuditTimeline({ events, onClearHistory }: AuditTimelineProps) {
         </div>
 
         {events.length > 0 && (
-          <button
-            onClick={onClearHistory}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 border border-slate-800 hover:border-rose-800/40 transition-colors cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Reset Session Log
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={downloadCsv}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-300 hover:bg-emerald-950/40 border border-emerald-800/50 transition-colors cursor-pointer"
+            >
+              <ArrowUpRight className="w-3.5 h-3.5" />
+              Export Audit CSV
+            </button>
+            <button
+              onClick={onClearHistory}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 border border-slate-800 hover:border-rose-800/40 transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Reset Session Log
+            </button>
+          </div>
         )}
       </div>
 
