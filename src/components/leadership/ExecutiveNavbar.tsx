@@ -62,10 +62,34 @@ export function ExecutiveNavbar({ onRefresh, isLoading }: ExecutiveNavbarProps) 
       </div>
 
       {/* Metadata & Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-[11px] text-emerald-300 border border-emerald-500/30 font-medium">
+          <span>⏱️ Time: 3:30 hrs</span>
+        </div>
+
+        <a
+          href="https://github.com/Kumkumlover/Tiffinloop/blob/main/.agents/prds/tiffinloop-production-one-page.prd.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors"
+          title="Read One-Page Production PRD"
+        >
+          <span>📄 PRD</span>
+        </a>
+
+        <a
+          href="https://github.com/Kumkumlover/Tiffinloop/blob/main/docs/BUILD_LOG.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-semibold border border-purple-500/30 transition-colors"
+          title="Inspect Complete Multi-Agent Build Log"
+        >
+          <span>🪵 Build Log</span>
+        </a>
+
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 text-[11px] text-slate-300 border border-slate-700/60 font-mono">
           <Clock className="w-3 h-3 text-amber-400" />
-          <span>Simulation Anchor: 23-Sep-2026 10:30 AM</span>
+          <span>Anchor: 23-Sep 10:30 AM</span>
         </div>
 
         {onRefresh && (

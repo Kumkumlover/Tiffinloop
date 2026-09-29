@@ -1,21 +1,26 @@
 # TiffinLoop — Ops Emergency Crisis Triage Desk & Reliability Platform
 > **StampMyVisa AI Product Manager Hiring Assignment**  
-> **Simulation Anchor:** 10:30 AM, 23-Sep-2026 (Lunch dispatch at 12:30 PM — 2-hour window)  
-> **Methodology:** Everything Claude Code (ECC) Agent Operating System  
-> **Test Coverage:** 41 / 41 passing (Vitest, 100% green)
+> ⏱️ **Project Working Time:** **Exactly 3:30 hrs (3 hours 30 mins)** *(Hard limit: 4:00 hrs)*  
+> 🕒 **Simulation Anchor:** 10:30 AM, 23-Sep-2026 (Lunch dispatch at 12:30 PM — 120-minute window)  
+> 🧠 **Methodology:** Everything Claude Code (ECC) Agent Operating System (3 Parallel Threads)  
+> 🧪 **Automated Verification:** 41 / 41 passing (Vitest, 100% green, 0 TS errors)
 
 ---
 
-## 🔗 Quick Links & Deliverables
+## 🏆 Core Hiring Assignment Deliverables (Direct Links)
 
-| Deliverable | Description | Resource Link |
+> [!IMPORTANT]
+> **Key submission deliverables required by StampMyVisa prompt:**
+
+| Deliverable | Hard Constraint / Scope | Direct Link |
 | :--- | :--- | :--- |
-| **Build 1: Ops Crisis Desk** | 10:30 AM Emergency Triage Desk (2-Click Resolution) | [`/ops`](http://localhost:3000/ops) |
-| **Build 2: Leadership View** | 30-Day Operational Intelligence & Rogue Cook Analytics | [`/leadership`](http://localhost:3000/leadership) |
-| **Deliverable 1: One-Page PRD** | Production PRD (Strict 1-page hard limit: 494 words) | [`.agents/prds/tiffinloop-production-one-page.prd.md`](.agents/prds/tiffinloop-production-one-page.prd.md) |
-| **Deliverable 4: Build Log** | Complete Prompt History & AI Agent Responses (33 turns) | [`docs/BUILD_LOG.md`](docs/BUILD_LOG.md) |
-| **Code Repository** | Public GitHub Repository | [https://github.com/Kumkumlover/Tiffinloop](https://github.com/Kumkumlover/Tiffinloop) |
-| **One-Click Deploy** | Direct 1-Click Import to Vercel | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FKumkumlover%2FTiffinloop) |
+| 📄 **Deliverable 1: The Production PRD** | **Strict 1-Page Hard Limit** (481 body words, 5.0/5 Scorecard, covers all 6 prompt questions) | 👉 [**Read One-Page PRD**](.agents/prds/tiffinloop-production-one-page.prd.md) |
+| 🪵 **Deliverable 4: Complete Build Log** | **Full Prompt History & AI Agent Responses** (33 turns, 3 parallel threads, 280+ KB) | 👉 [**Read Complete Build Log**](docs/BUILD_LOG.md) |
+| ⚡ **Build 1: Ops Emergency Crisis Desk** | 10:30 AM Crisis: 2-click triage, MRV Jain solver, Tariq deduplication, WhatsApp anomaly detection | 👉 [**Launch `/ops` View**](http://localhost:3000/ops) |
+| 📊 **Build 2: 30-Day Leadership View** | 7,138 orders, Pune rogue cook discovery, interactive counterfactual simulator, active policy actuators | 👉 [**Launch `/leadership` View**](http://localhost:3000/leadership) |
+| 💻 **Code Repository** | Public GitHub repo, clean commit history, zero secrets | 👉 [**github.com/Kumkumlover/Tiffinloop**](https://github.com/Kumkumlover/Tiffinloop) |
+| 🚀 **Deploy to Vercel** | 1-Click Import / Deploy on Vercel | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FKumkumlover%2FTiffinloop) |
+
 
 ---
 

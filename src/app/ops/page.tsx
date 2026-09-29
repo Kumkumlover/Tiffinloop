@@ -423,19 +423,44 @@ export default function OpsPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-[11px] text-emerald-300 border border-emerald-500/30 font-medium">
+              <span>⏱️ Time: 3:30 hrs</span>
+            </div>
+
+            <a
+              href="https://github.com/Kumkumlover/Tiffinloop/blob/main/.agents/prds/tiffinloop-production-one-page.prd.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors"
+              title="Read One-Page Production PRD"
+            >
+              <span>📄 PRD</span>
+            </a>
+
+            <a
+              href="https://github.com/Kumkumlover/Tiffinloop/blob/main/docs/BUILD_LOG.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-semibold border border-purple-500/30 transition-colors"
+              title="Inspect Complete Multi-Agent Build Log"
+            >
+              <span>🪵 Build Log</span>
+            </a>
+
             <Link
               href="/leadership"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-xs font-semibold text-indigo-300 border border-indigo-500/30 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-xs font-semibold text-indigo-300 border border-indigo-500/30 transition-colors"
             >
-              <span>📊 Leadership Intelligence</span>
+              <span>📊 Leadership</span>
             </Link>
+
             <button
               onClick={() => window.location.reload()}
               className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Sync Live</span>
+              <span className="hidden sm:inline">Sync Live</span>
             </button>
           </div>
         </div>
