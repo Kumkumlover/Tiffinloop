@@ -9,6 +9,7 @@ import { FallbackMatcher } from '@/components/ops/FallbackMatcher';
 import { NotificationModal } from '@/components/ops/NotificationModal';
 import { AuditTimeline } from '@/components/ops/AuditTimeline';
 import {
+  CanonicalCity,
   DropoutAlert,
   FallbackCandidate,
   MealType,
@@ -74,6 +75,7 @@ export default function OpsPage() {
   const [notificationsByCookId, setNotificationsByCookId] = useState<Record<string, any[]>>({});
 
   const [selectedMealFilter, setSelectedMealFilter] = useState<'ALL' | MealType>('ALL');
+  const [cityFilter, setCityFilter] = useState<'ALL' | CanonicalCity>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isComputingPlan, setIsComputingPlan] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
@@ -385,6 +387,17 @@ export default function OpsPage() {
     setSuccessBanner(null);
   }
 
+  function handleCityFilterChange(city: 'ALL' | CanonicalCity) {
+    setCityFilter(city);
+    const filtered = city === 'ALL' ? activeDropouts : activeDropouts.filter(d => d.city === city);
+    if (filtered.length > 0 && !filtered.some(d => d.cookId === selectedCookId)) {
+      setSelectedCookId(filtered[0].cookId);
+    }
+  }
+
+  const displayedDropouts =
+    cityFilter === 'ALL' ? activeDropouts : activeDropouts.filter(d => d.city === cityFilter);
+
   const selectedDropout = activeDropouts.find(d => d.cookId === selectedCookId);
   const currentCandidates = selectedCookId ? candidatesByCookId[selectedCookId] || [] : [];
   const currentPlan = selectedCookId ? plansByCookId[selectedCookId] || null : null;
@@ -392,31 +405,39 @@ export default function OpsPage() {
   const isSelectedResolved = selectedCookId ? resolvedCookIds.includes(selectedCookId) : false;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-black">
       {/* Top Navigation */}
-      <nav className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Portal Home</span>
-          </Link>
-          <span className="text-slate-600">/</span>
-          <span className="text-xs font-bold text-amber-400 tracking-wide">
-            Ops Emergency Desk
-          </span>
-        </div>
+      <nav className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-3">
+        <div className="max-w-[1720px] w-full mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Portal Home</span>
+            </Link>
+            <span className="text-slate-600">/</span>
+            <span className="text-xs font-bold text-amber-400 tracking-wide">
+              Ops Emergency Desk
+            </span>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => window.location.reload()}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Sync Live</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/leadership"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-xs font-semibold text-indigo-300 border border-indigo-500/30 transition-colors"
+            >
+              <span>📊 Leadership Intelligence</span>
+            </Link>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Sync Live</span>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -427,8 +448,8 @@ export default function OpsPage() {
         operationalNotices={operationalNotices}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto space-y-6">
+      {/* Main Content Area - Expanded Widescreen Layout */}
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1720px] w-full mx-auto space-y-6">
         {/* Success Banner */}
         {successBanner && (
           <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-sm flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-300 shadow-lg shadow-emerald-500/10">
@@ -447,7 +468,7 @@ export default function OpsPage() {
 
         {/* Section: Dropout Queue Selection */}
         <section>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             <div>
               <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -462,16 +483,39 @@ export default function OpsPage() {
                 <button
                   onClick={handleAutoResolveAll}
                   disabled={isDispatching}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
                 >
                   <Zap className="w-3.5 h-3.5 text-slate-950" />
                   <span>⚡ Auto-Resolve All ({activeDropouts.length - resolvedCookIds.length}) Kitchens</span>
                 </button>
               )}
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-400 tabular-nums">
                 {resolvedCookIds.length} of {activeDropouts.length} Resolved
               </span>
             </div>
+          </div>
+
+          {/* Market Scope City Filter Pills */}
+          <div className="flex items-center gap-2 mb-3.5 flex-wrap">
+            <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1.5">
+              Market Scope:
+            </span>
+            {(['ALL', 'Bengaluru', 'Mumbai', 'Pune'] as const).map(city => {
+              const count = city === 'ALL' ? activeDropouts.length : activeDropouts.filter(d => d.city === city).length;
+              return (
+                <button
+                  key={city}
+                  onClick={() => handleCityFilterChange(city)}
+                  className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer active:scale-[0.98] ${
+                    cityFilter === city
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/60'
+                  }`}
+                >
+                  {city === 'ALL' ? `All Hubs (${count})` : `${city} (${count})`}
+                </button>
+              );
+            })}
           </div>
 
           {isLoading ? (
@@ -480,9 +524,18 @@ export default function OpsPage() {
                 <div key={i} className="h-44 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />
               ))}
             </div>
+          ) : displayedDropouts.length === 0 ? (
+            <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-1" />
+              <h3 className="text-sm font-bold text-white">No Active Morning Dropouts in {cityFilter} Today</h3>
+              <p className="text-xs text-slate-400 max-w-lg mx-auto">
+                All scheduled meals in {cityFilter} are cooking and on track for delivery.
+                {cityFilter === 'Pune' && " Chef Anil Joshi (CK092) reported a 30-min transit delay for tomorrow 24-Sep; today's 3 orders are cooking on schedule."}
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {activeDropouts.map(dropout => (
+              {displayedDropouts.map(dropout => (
                 <DropoutCard
                   key={dropout.cookId}
                   dropout={dropout}

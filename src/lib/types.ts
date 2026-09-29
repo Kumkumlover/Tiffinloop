@@ -159,3 +159,79 @@ export interface TiffinLoopDataset {
   cookMap: Map<string, NormalizedCook>;
   subscriberMap: Map<string, NormalizedSubscriber>;
 }
+
+export interface LeadershipAnalyticsResponse {
+  summary: {
+    totalOrders30D: number;
+    totalDropouts30D: number;
+    networkReliabilityRate: number;
+    networkDropoutRate: number;
+    totalGmvLostInr: number;
+    totalRefundCostInr: number;
+    annualizedChurnLossInr: number;
+    uniqueSubscribersImpacted: number;
+    repeatDisruptionSubscribers: number;
+  };
+  regionalBreakdown: Array<{
+    city: CanonicalCity;
+    totalOrders: number;
+    dropoutOrders: number;
+    dropoutRate: number;
+    shareOfAllDropouts: number;
+    activeCooks: number;
+    activeSubscribers: number;
+  }>;
+  rogueCooks: {
+    puneTotalDropouts: number;
+    combinedRogueDropouts: number;
+    concentrationPercentage: number;
+    counterfactualPuneRate: number;
+    cooks: Array<{
+      cookId: string;
+      cookName: string;
+      city: CanonicalCity;
+      cuisine: CuisineType;
+      dropouts: number;
+      totalOrders: number;
+      dropoutRate: number;
+      governanceStatus: 'ROGUE' | 'WATCHLIST' | 'MONITORED';
+    }>;
+  };
+  dailyTimeline: Array<{
+    date: string;
+    totalOrders: number;
+    dropouts: number;
+    dropoutRate: number;
+    isFestivalSurge: boolean;
+    byCity: {
+      bengaluru: number;
+      mumbai: number;
+      pune: number;
+    };
+  }>;
+  predictiveSignals: Array<{
+    cookId: string;
+    cookName: string;
+    city: CanonicalCity;
+    healthScore: number;
+    riskTier: 'HIGH' | 'MEDIUM' | 'LOW';
+    activeOrdersToday: number;
+    maxDailyCapacity: number;
+    capacityUtilization: number;
+    precursorDropouts: number;
+    warningReasons: string[];
+  }>;
+  strategicRecommendations: Array<{
+    id: string;
+    title: string;
+    tag: string;
+    category: 'GOVERNANCE' | 'RESERVE_CAPACITY' | 'INCENTIVES' | 'RETENTION';
+    action: string;
+    projectedRoi: string;
+    annualSavings: string;
+    timeline: string;
+  }>;
+  isSimulated: boolean;
+  simulatedOffboardIds: string[];
+}
+
