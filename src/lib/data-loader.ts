@@ -10,6 +10,7 @@ import {
   NormalizedOrder,
   NormalizedSubscriber,
   DropoutAlert,
+  OperationalNotice,
   TiffinLoopDataset,
 } from './types';
 import {
@@ -136,6 +137,29 @@ export async function loadTiffinLoopDataset(forceReload = false): Promise<Tiffin
     cookMap.set(cookId, cook);
     return cook;
   });
+
+  // 4b. Detect duplicate cook identities & unify physical kitchen capacities
+  const nameCityToCooks = new Map<string, NormalizedCook[]>();
+  for (const c of normalizedCooks) {
+    const key = `${c.cookName.toLowerCase()}_${c.city.toLowerCase()}`;
+    const list = nameCityToCooks.get(key) || [];
+    list.push(c);
+    nameCityToCooks.set(key, list);
+  }
+
+  for (const duplicates of nameCityToCooks.values()) {
+    if (duplicates.length > 1) {
+      const allIds = duplicates.map(d => d.cookId);
+      const totalActiveToday = duplicates.reduce((sum, d) => sum + d.activeOrdersToday, 0);
+      const physicalMax = Math.max(...duplicates.map(d => d.maxDailyOrders));
+      const unifiedRemaining = Math.max(0, physicalMax - totalActiveToday);
+
+      for (const d of duplicates) {
+        d.duplicateCookIds = allIds;
+        d.remainingCapacity = unifiedRemaining;
+      }
+    }
+  }
 
   // 5. Parse Subscribers and Detect Duplicates (e.g. Tariq Hussain)
   const subscriberMap = new Map<string, NormalizedSubscriber>();
@@ -267,12 +291,39 @@ export async function loadTiffinLoopDataset(forceReload = false): Promise<Tiffin
     }
   }
 
+  const operationalNotices: OperationalNotice[] = [
+    {
+      id: 'NOTICE-FESTIVAL',
+      type: 'FESTIVAL_WEEK',
+      title: 'Festival Week Active (Day 1 of 7)',
+      description: 'Elevated cook leave probability expected across Bengaluru, Mumbai & Pune. Standby buffers active.',
+      targetDate: '2026-09-23 to 2026-09-29',
+    },
+    {
+      id: 'NOTICE-ANIL-LOGISTICS',
+      type: 'ADVANCE_LOGISTICS',
+      title: "Tomorrow's Logistics Notice (24-Sep)",
+      description: 'Chef Anil Joshi (CK092, Pune) reported 30-min pickup delay for tomorrow due to road work. Today\'s 3 orders are cooking on schedule.',
+      cookId: 'CK092',
+      cookName: 'Anil Joshi',
+      city: 'Pune',
+      targetDate: '2026-09-24',
+    },
+    {
+      id: 'NOTICE-UNIFIED-KITCHEN',
+      type: 'CAPACITY_SAFEGUARD',
+      title: 'Unified Kitchen Capacity Lock Active',
+      description: '5 duplicate cook profiles (Vikram Ahmed CK036/CK081, Ayesha Agarwal CK011/CK082, etc.) merged in-memory to prevent double-booking physical kitchen limits.',
+    },
+  ];
+
   cachedDataset = {
     anchorTime: '2026-09-23T10:30:00+05:30',
     cooks: normalizedCooks,
     subscribers: normalizedSubscribers,
     orders: normalizedOrders,
     activeDropouts,
+    operationalNotices,
     cookMap,
     subscriberMap,
   };

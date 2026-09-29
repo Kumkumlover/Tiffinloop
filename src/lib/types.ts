@@ -46,6 +46,8 @@ export interface NormalizedCook {
   maxDailyOrders: number;
   activeOrdersToday: number;
   remainingCapacity: number;
+  isDuplicateOf?: string;
+  duplicateCookIds?: string[];
 }
 
 export interface NormalizedSubscriber {
@@ -136,12 +138,24 @@ export interface TriageDecision {
   }>;
 }
 
+export interface OperationalNotice {
+  id: string;
+  type: 'ADVANCE_LOGISTICS' | 'FESTIVAL_WEEK' | 'CAPACITY_SAFEGUARD';
+  title: string;
+  description: string;
+  cookId?: string;
+  cookName?: string;
+  city?: CanonicalCity;
+  targetDate?: string;
+}
+
 export interface TiffinLoopDataset {
   anchorTime: string; // "2026-09-23T10:30:00+05:30"
   cooks: NormalizedCook[];
   subscribers: NormalizedSubscriber[];
   orders: NormalizedOrder[];
   activeDropouts: DropoutAlert[];
+  operationalNotices: OperationalNotice[];
   cookMap: Map<string, NormalizedCook>;
   subscriberMap: Map<string, NormalizedSubscriber>;
 }

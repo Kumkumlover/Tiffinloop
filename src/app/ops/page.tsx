@@ -14,6 +14,7 @@ import {
   MealType,
   TriageAssignment,
   NormalizedOrder,
+  OperationalNotice,
 } from '@/lib/types';
 import {
   getStoredAuditEvents,
@@ -56,6 +57,7 @@ export default function OpsPage() {
   const [selectedCookId, setSelectedCookId] = useState<string | null>(null);
   const [resolvedCookIds, setResolvedCookIds] = useState<string[]>([]);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [operationalNotices, setOperationalNotices] = useState<OperationalNotice[]>([]);
 
   // Triage state per cook
   const [candidatesByCookId, setCandidatesByCookId] = useState<Record<string, FallbackCandidate[]>>({});
@@ -89,6 +91,9 @@ export default function OpsPage() {
         if (data.activeDropouts) {
           setActiveDropouts(data.activeDropouts);
           setStats(data.stats);
+          if (data.operationalNotices) {
+            setOperationalNotices(data.operationalNotices);
+          }
 
           // Restore resolved state from localStorage
           const savedResolved = getResolvedCookIds();
@@ -416,7 +421,11 @@ export default function OpsPage() {
       </nav>
 
       {/* Emergency Header Bar */}
-      <EmergencyHeader stats={stats} resolvedCount={resolvedCookIds.length} />
+      <EmergencyHeader
+        stats={stats}
+        resolvedCount={resolvedCookIds.length}
+        operationalNotices={operationalNotices}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto space-y-6">

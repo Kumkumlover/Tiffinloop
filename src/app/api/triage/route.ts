@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { loadTiffinLoopDataset } from '@/lib/data-loader';
 import { findFallbackCandidates, generateOptimalTriagePlan } from '@/lib/fallback-engine';
 import { generateSimulatedNotifications } from '@/lib/notification-service';
@@ -30,6 +30,7 @@ export async function GET() {
     return NextResponse.json({
       anchorTime: dataset.anchorTime,
       activeDropouts: dataset.activeDropouts,
+      operationalNotices: dataset.operationalNotices,
       stats,
     });
   } catch (error: any) {

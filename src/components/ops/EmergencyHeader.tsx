@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Clock, AlertTriangle, AlertCircle, IndianRupee, Users, ChefHat } from 'lucide-react';
+import { Clock, AlertTriangle, AlertCircle, IndianRupee, Users, ChefHat, Info } from 'lucide-react';
 
 interface EmergencyHeaderProps {
   stats: {
@@ -12,9 +12,15 @@ interface EmergencyHeaderProps {
     revenueAtRisk: number;
   };
   resolvedCount: number;
+  operationalNotices?: Array<{
+    id: string;
+    type: string;
+    title: string;
+    description: string;
+  }>;
 }
 
-export function EmergencyHeader({ stats, resolvedCount }: EmergencyHeaderProps) {
+export function EmergencyHeader({ stats, resolvedCount, operationalNotices = [] }: EmergencyHeaderProps) {
   const [secondsRemaining, setSecondsRemaining] = useState(7200); // 2 hours to 12:30 PM
 
   useEffect(() => {
@@ -114,6 +120,34 @@ export function EmergencyHeader({ stats, resolvedCount }: EmergencyHeaderProps) 
           </div>
         </div>
       </div>
+
+      {/* Operational Intelligence & Forward Look Strip */}
+      {operationalNotices && operationalNotices.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+          {operationalNotices.map((notice) => (
+            <div
+              key={notice.id}
+              className={`p-2.5 rounded-xl border flex items-start gap-2.5 ${
+                notice.type === 'FESTIVAL_WEEK'
+                  ? 'bg-purple-950/40 border-purple-800/50 text-purple-200'
+                  : notice.type === 'ADVANCE_LOGISTICS'
+                  ? 'bg-blue-950/40 border-blue-800/50 text-blue-200'
+                  : 'bg-emerald-950/40 border-emerald-800/50 text-emerald-200'
+              }`}
+            >
+              <Info className="w-4 h-4 shrink-0 mt-0.5 text-slate-400" />
+              <div>
+                <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                  {notice.title}
+                </div>
+                <div className="text-[11px] text-slate-300 leading-relaxed mt-0.5">
+                  {notice.description}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
