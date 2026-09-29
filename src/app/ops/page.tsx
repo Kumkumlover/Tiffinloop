@@ -19,6 +19,11 @@ import {
   getStoredAuditEvents,
   saveAuditEvent,
   getResolvedCookIds,
+  saveResolvedCookId,
+  getStoredPlans,
+  saveStoredPlans,
+  getStoredNotifications,
+  saveStoredNotifications,
   clearTriageSession,
   AuditEvent,
 } from '@/lib/triage-store';
@@ -93,6 +98,13 @@ export default function OpsPage() {
           const savedAudits = getStoredAuditEvents();
           setAuditEvents(savedAudits);
 
+          // Restore plans & notifications from localStorage
+          const savedPlans = getStoredPlans();
+          setPlansByCookId(savedPlans);
+
+          const savedNotifs = getStoredNotifications();
+          setNotificationsByCookId(savedNotifs);
+
           // Select first unresolved dropout, or first dropout
           const firstUnresolved = data.activeDropouts.find(
             (d: DropoutAlert) => !savedResolved.includes(d.cookId)
@@ -144,8 +156,43 @@ export default function OpsPage() {
       const data = await res.json();
 
       if (data.plan) {
-        setPlansByCookId(prev => ({ ...prev, [cookId]: data.plan }));
-        setNotificationsByCookId(prev => ({ ...prev, [cookId]: data.notifications }));
+        setPlansByCookId(prev => {
+          const next = { ...prev, [cookId]: data.plan };
+          saveStoredPlans(next);
+          return next;
+        });
+        setNotificationsByCookId(prev => {
+          const next = { ...prev, [cookId]: data.notifications };
+          saveStoredNotifications(next);
+          return next;
+        });
+
+        // Immediately record an audit event for the Smart Match action!
+        const distinctBackups = Array.from(
+          new Set(
+            data.plan.assignments
+              .map((a: any) => a.backupCookName)
+              .filter(Boolean) as string[]
+          )
+        );
+        const alert = activeDropouts.find(d => d.cookId === cookId);
+        const isSplit = distinctBackups.length > 1;
+
+        const auditEvent: AuditEvent = {
+          id: `AUDIT-MATCH-${cookId}`,
+          timestamp: new Date().toISOString(),
+          cookId,
+          cookName: alert?.cookName || cookId,
+          affectedOrdersCount: alert?.affectedOrders.length || data.plan.assignments.length,
+          resolutionType: isSplit ? 'AUTO_SPLIT' : 'SINGLE_BACKUP',
+          assignedBackups: distinctBackups,
+          notificationsSentCount: 0,
+          details: `⚡ 1-Click Smart Match executed for ${alert?.cookName || cookId}: ${
+            data.plan.assignments.length
+          } orders allocated across ${distinctBackups.join(', ')}. Strict diet compliance verified. Ready for dispatch review.`,
+        };
+        saveAuditEvent(auditEvent);
+        setAuditEvents(getStoredAuditEvents());
       }
     } catch (err) {
       console.error('Failed to generate smart plan', err);
@@ -177,7 +224,7 @@ export default function OpsPage() {
       const resolutionType = isSplit ? 'AUTO_SPLIT' : 'SINGLE_BACKUP';
 
       const auditEvent: AuditEvent = {
-        id: `AUDIT-${Date.now()}`,
+        id: `AUDIT-DISPATCH-${Date.now()}-${alert.cookId}`,
         timestamp: new Date().toISOString(),
         cookId: alert.cookId,
         cookName: alert.cookName,
@@ -185,17 +232,15 @@ export default function OpsPage() {
         resolutionType,
         assignedBackups: distinctBackups,
         notificationsSentCount: notifications.length,
-        details: `Dispatched ${notifications.length} simulated notifications across ${
+        details: `✅ Dispatched ${notifications.length} customer notifications for ${alert.cookName} across ${
           distinctBackups.length
-        } kitchens (${distinctBackups.join(', ')}). Strict Jain compliance verified.`,
+        } kitchens (${distinctBackups.join(', ')}). Crisis resolved for 12:30 PM delivery window.`,
       };
 
       saveAuditEvent(auditEvent);
+      saveResolvedCookId(alert.cookId);
       setAuditEvents(getStoredAuditEvents());
-
-      // Update resolved cooks
-      const updatedResolved = [...resolvedCookIds, alert.cookId];
-      setResolvedCookIds(updatedResolved);
+      setResolvedCookIds(getResolvedCookIds());
 
       setIsModalOpen(false);
       setSuccessBanner(
@@ -203,7 +248,8 @@ export default function OpsPage() {
       );
 
       // Advance to next unresolved cook
-      const nextUnresolved = activeDropouts.find(d => !updatedResolved.includes(d.cookId));
+      const currentResolved = getResolvedCookIds();
+      const nextUnresolved = activeDropouts.find(d => !currentResolved.includes(d.cookId));
       if (nextUnresolved) {
         setSelectedCookId(nextUnresolved.cookId);
       }
@@ -252,13 +298,22 @@ export default function OpsPage() {
             )}. Strict Jain and capacity compliance verified.`,
           };
           saveAuditEvent(auditEvent);
+          saveResolvedCookId(dropout.cookId);
           newResolved.push(dropout.cookId);
-          setPlansByCookId(prev => ({ ...prev, [dropout.cookId]: data.plan }));
-          setNotificationsByCookId(prev => ({ ...prev, [dropout.cookId]: data.notifications }));
+          setPlansByCookId(prev => {
+            const next = { ...prev, [dropout.cookId]: data.plan };
+            saveStoredPlans(next);
+            return next;
+          });
+          setNotificationsByCookId(prev => {
+            const next = { ...prev, [dropout.cookId]: data.notifications };
+            saveStoredNotifications(next);
+            return next;
+          });
         }
       }
 
-      setResolvedCookIds(newResolved);
+      setResolvedCookIds(getResolvedCookIds());
       setAuditEvents(getStoredAuditEvents());
       setSuccessBanner(
         '🎉 Master Resolution Complete: All 3 disrupted kitchens (24 orders) triaged and secured for 12:30 PM lunch!'
@@ -287,13 +342,33 @@ export default function OpsPage() {
       }
       return a;
     });
-    setPlansByCookId(prev => ({
-      ...prev,
-      [selectedCookId]: {
-        ...plan,
-        assignments: updatedAssignments,
-      },
-    }));
+
+    setPlansByCookId(prev => {
+      const next = {
+        ...prev,
+        [selectedCookId]: {
+          ...plan,
+          assignments: updatedAssignments,
+        },
+      };
+      saveStoredPlans(next);
+      return next;
+    });
+
+    const alert = activeDropouts.find(d => d.cookId === selectedCookId);
+    const auditEvent: AuditEvent = {
+      id: `AUDIT-MANUAL-${Date.now()}-${orderId}`,
+      timestamp: new Date().toISOString(),
+      cookId: selectedCookId,
+      cookName: alert?.cookName || selectedCookId,
+      affectedOrdersCount: 1,
+      resolutionType: 'MANUAL_SPLIT',
+      assignedBackups: [cand?.cookName || backupCookId],
+      notificationsSentCount: 0,
+      details: `✏️ Manual override: Order #${orderId} reassigned to ${cand?.cookName || backupCookId}.`,
+    };
+    saveAuditEvent(auditEvent);
+    setAuditEvents(getStoredAuditEvents());
   }
 
   function handleClearSession() {

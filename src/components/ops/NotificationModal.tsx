@@ -64,18 +64,17 @@ export function NotificationModal({
         <div className="p-5 overflow-y-auto space-y-4 flex-1">
           {/* Deduplication Safeguard Banner */}
           {hasDuplicateConsolidated && (
-            <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-600/50 text-blue-200 text-xs space-y-1">
+            <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-600/50 text-blue-200 text-xs space-y-1.5">
               <div className="font-bold flex items-center gap-1.5 text-blue-300">
                 <ShieldCheck className="w-4 h-4 text-blue-400" />
-                Deduplication Safeguard Triggered (Tariq Hussain)
+                Multi-Order Customer Handled: Tariq Hussain (2 Distinct Meals)
               </div>
               <p className="text-blue-200/90 leading-relaxed">
-                Subscribers <span className="font-mono font-semibold">SUB0511</span> &amp;{' '}
-                <span className="font-mono font-semibold">SUB0512</span> share phone{' '}
-                <span className="font-mono font-semibold">+91 98123 45678</span>. Both meal orders
-                (#ORD07117 &amp; #ORD07118) have been consolidated into a <strong>single WhatsApp message</strong>{' '}
-                to prevent double notifications.
+                Tariq Hussain placed 2 different subscriptions with distinct pricing: <strong className="text-white font-mono">#ORD07117 (₹199)</strong> and <strong className="text-white font-mono">#ORD07118 (₹129)</strong> under phone <span className="font-mono font-semibold">+91 98123 45678</span>.
               </p>
+              <div className="text-[11px] text-blue-300 bg-blue-900/50 px-2.5 py-1.5 rounded-lg border border-blue-800/60 font-medium">
+                💡 <strong>Customer Experience Guard:</strong> Instead of sending two confusing alerts, <strong>both distinct orders are confirmed for delivery</strong> together by backup Chef Meena Nair, and consolidated into 1 WhatsApp message detailing both meal tiers and charges.
+              </div>
             </div>
           )}
 

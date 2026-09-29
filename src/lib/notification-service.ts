@@ -1,9 +1,4 @@
-import {
-  DropoutAlert,
-  MealType,
-  TiffinLoopDataset,
-  TriageAssignment,
-} from './types';
+import { TiffinLoopDataset, DropoutAlert, TriageAssignment, MealType } from './types';
 
 export interface SimulatedNotification {
   subscriberId: string;
@@ -19,14 +14,15 @@ export function generateSimulatedNotifications(
   dataset: TiffinLoopDataset,
   alert: DropoutAlert
 ): SimulatedNotification[] {
-  // Group assignments by normalized phone number or subscriberId
+  // Group by canonical phone number to prevent duplicate customer messages
   const phoneGroups = new Map<string, TriageAssignment[]>();
 
-  for (const a of assignments) {
-    const sub = dataset.subscriberMap.get(a.subscriberId);
-    const key = sub?.phone || a.subscriberId;
+  for (const assignment of assignments) {
+    const sub = dataset.subscriberMap.get(assignment.subscriberId);
+    // Use canonical phone if available, else subscriberId as fallback
+    const key = sub?.phone || assignment.subscriberId;
     const existing = phoneGroups.get(key) || [];
-    existing.push(a);
+    existing.push(assignment);
     phoneGroups.set(key, existing);
   }
 
@@ -60,13 +56,28 @@ export function generateSimulatedNotifications(
       }, 0);
 
       message = `⚠️ TiffinLoop Update for ${subName}:\nDue to an emergency, your regular home cook ${alert.cookName} is unavailable today. Unfortunately, no alternative chef matching your strict dietary requirements was available.\n\n💳 An immediate 100% refund of ₹${totalAmount} has been processed back to your payment method + ₹50 TiffinLoop Apology Credit added to your wallet.\n\nWe sincerely apologize for the inconvenience. For assistance, reply to this message.`;
+    } else if (isDuplicate) {
+      const orderDetails = group.map(g => {
+        const o = dataset.orders.find(ord => ord.orderId === g.orderId);
+        return {
+          orderId: g.orderId,
+          amount: o?.amountInr || 0,
+          backupChef: g.backupCookName || (backupCookNames[0] || 'Top-Rated Chef'),
+        };
+      });
+
+      const totalAmount = orderDetails.reduce((sum, od) => sum + od.amount, 0);
+      const breakdownText = orderDetails
+        .map(od => `  📦 Order #${od.orderId} (₹${od.amount}): Reassigned to Chef ${od.backupChef}`)
+        .join('\n');
+
+      message = `🔔 TiffinLoop Update for ${subName}:\nDue to an unexpected situation, your assigned cook ${alert.cookName} is unavailable today.\n\n✅ We confirmed 2 active meal orders under your number. BOTH orders are secured and will be prepared and delivered together:\n${breakdownText}\n💰 Total Billed: ₹${totalAmount} (${orderDetails.map(od => `₹${od.amount}`).join(' + ')})\n🕒 Delivery Window: ${deliveryWindow} (Both boxes arriving together)\n🥗 Dietary Assurance: 100% ${diet} verified.\n\nℹ️ Order Assurance: Both meal boxes are being fulfilled as requested. You do not need to take any action.\n\nThank you for choosing TiffinLoop!`;
     } else {
       const chefStr = backupCookNames.length === 1 
         ? `Chef ${backupCookNames[0]}` 
         : `Chefs ${backupCookNames.join(' & ')}`;
 
-      const verb = group.length > 1 ? 'have been' : 'has been';
-      message = `🔔 TiffinLoop Update for ${subName}:\nDue to an unexpected situation, your assigned cook ${alert.cookName} is unavailable today.\n\n✅ To ensure you receive your ${mealType.toLowerCase()} on time, your ${boxCount} (${orderIdStr}) ${verb} reassigned to our top-rated ${chefStr}.\n🕒 Delivery Window: ${deliveryWindow}\n🥗 Dietary Assurance: 100% ${diet} verified.\n\nThank you for choosing TiffinLoop!`;
+      message = `🔔 TiffinLoop Update for ${subName}:\nDue to an unexpected situation, your assigned cook ${alert.cookName} is unavailable today.\n\n✅ To ensure you receive your ${mealType.toLowerCase()} on time, your ${boxCount} (${orderIdStr}) has been reassigned to our top-rated ${chefStr}.\n🕒 Delivery Window: ${deliveryWindow}\n🥗 Dietary Assurance: 100% ${diet} verified.\n\nThank you for choosing TiffinLoop!`;
     }
 
     notifications.push({

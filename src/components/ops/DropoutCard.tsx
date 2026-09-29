@@ -122,7 +122,7 @@ export function DropoutCard({
         {hasDuplicateSub && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
             <LinkIcon className="w-3 h-3 text-blue-400" />
-            Duplicate Subscriber (Tariq H.)
+            Multi-Order Sub (Tariq H. — 2 Boxes)
           </span>
         )}
         {dropout.source === 'WHATSAPP_UNRECORDED' && (

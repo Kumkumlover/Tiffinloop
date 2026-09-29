@@ -139,9 +139,14 @@ export function AffectedOrdersTable({
                         {sub?.phoneDisplay || sub?.phone || 'No phone'}
                       </div>
                       {isTariq && (
-                        <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                          <LinkIcon className="w-2.5 h-2.5" />
-                          Duplicate Sub: Tariq Hussain
+                        <div className="mt-1 flex flex-col gap-0.5">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            <LinkIcon className="w-2.5 h-2.5" />
+                            Multi-Order: 2 Distinct Meals (₹199 &amp; ₹129)
+                          </span>
+                          <span className="text-[10px] text-blue-400/80">
+                            Both meals confirmed &amp; arriving together
+                          </span>
                         </div>
                       )}
                     </td>
